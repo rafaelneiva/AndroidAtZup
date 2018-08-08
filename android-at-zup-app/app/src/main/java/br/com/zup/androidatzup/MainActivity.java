@@ -1,31 +1,19 @@
 package br.com.zup.androidatzup;
 
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
-import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.TextView;
 
 public class MainActivity extends AppCompatActivity {
 
-    /**
-     * The {@link android.support.v4.view.PagerAdapter} that will provide
-     * fragments for each of the sections. We use a
-     * {@link FragmentPagerAdapter} derivative, which will keep every
-     * loaded fragment in memory. If this becomes too memory intensive, it
-     * may be best to switch to a
-     * {@link android.support.v4.app.FragmentStatePagerAdapter}.
-     */
     private SectionsPagerAdapter mSectionsPagerAdapter;
 
-    /**
-     * The {@link ViewPager} that will host the section contents.
-     */
     private ViewPager mViewPager;
 
     @Override
@@ -33,71 +21,78 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        // Create the adapter that will return a fragment for each of the three
-        // primary sections of the activity.
         mSectionsPagerAdapter = new SectionsPagerAdapter(getSupportFragmentManager());
 
-        // Set up the ViewPager with the sections adapter.
-        mViewPager = (ViewPager) findViewById(R.id.container);
+        mViewPager = findViewById(R.id.container);
         mViewPager.setAdapter(mSectionsPagerAdapter);
 
+        mViewPager.setPageTransformer(false, new ViewPager.PageTransformer() {
+            @Override
+            public void transformPage(@NonNull View page, float position) {
+                int pageWidth = page.getWidth();
+
+                if (position < -1) { // [-Infinity,-1)
+                    // This page is way off-screen to the left.
+                } else if (position <= 1) { // [-1,1]
+
+                    try {
+                        TextView tvTitle = page.findViewById(R.id.section_label);
+
+                        if ((int) tvTitle.getTag() == 1) {
+                            tvTitle.setTranslationY((position) * (pageWidth / 2));
+
+                        } else if ((int) tvTitle.getTag() == 2) {
+                            tvTitle.setTranslationY(-(position) * (pageWidth / 2));
+                            tvTitle.setRotationX((position) * (pageWidth / 1.2f));
+
+                        } else if ((int) tvTitle.getTag() == 3) {
+                            tvTitle.setTranslationY((position) * (pageWidth / 2));
+                            tvTitle.setTranslationX((position) * (pageWidth / 0.5f));
+                            tvTitle.setRotationY((position) * (pageWidth / 0.5f));
+
+                        } else {
+                            tvTitle.setTranslationY((position) * (pageWidth / 2));
+                        }
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+
+                } else { // (1,+Infinity]
+                    // This page is way off-screen to the right.
+                }
+            }
+        });
     }
 
-    /**
-     * A placeholder fragment containing a simple view.
-     */
-    public static class PlaceholderFragment extends Fragment {
-        /**
-         * The fragment argument representing the section number for this
-         * fragment.
-         */
-        private static final String ARG_SECTION_NUMBER = "section_number";
-
-        public PlaceholderFragment() {
-        }
-
-        /**
-         * Returns a new instance of this fragment for the given section
-         * number.
-         */
-        public static PlaceholderFragment newInstance(int sectionNumber) {
-            PlaceholderFragment fragment = new PlaceholderFragment();
-            Bundle args = new Bundle();
-            args.putInt(ARG_SECTION_NUMBER, sectionNumber);
-            fragment.setArguments(args);
-            return fragment;
-        }
-
-        @Override
-        public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-            View rootView = inflater.inflate(R.layout.fragment_main, container, false);
-            TextView textView = rootView.findViewById(R.id.section_label);
-            textView.setText(getString(R.string.section_format, getArguments().getInt(ARG_SECTION_NUMBER)));
-            return rootView;
-        }
-    }
-
-    /**
-     * A {@link FragmentPagerAdapter} that returns a fragment corresponding to
-     * one of the sections/tabs/pages.
-     */
     public class SectionsPagerAdapter extends FragmentPagerAdapter {
 
-        public SectionsPagerAdapter(FragmentManager fm) {
+        SectionsPagerAdapter(FragmentManager fm) {
             super(fm);
         }
 
         @Override
         public Fragment getItem(int position) {
-            // getItem is called to instantiate the fragment for the given page.
-            // Return a PlaceholderFragment (defined as a static inner class below).
-            return PlaceholderFragment.newInstance(position + 1);
+            switch (position) {
+                case 0:
+                    return PlaceholderOneFragment.newInstance();
+                case 1:
+                    return PlaceholderTwoFragment.newInstance();
+                case 2:
+                    return PlaceholderThreeFragment.newInstance();
+                case 3:
+                    return PlaceholderFourFragment.newInstance();
+                case 4:
+                    return PlaceholderFiveFragment.newInstance();
+                case 5:
+                    return PlaceholderSixFragment.newInstance();
+                default:
+                    return PlaceholderOneFragment.newInstance();
+            }
         }
 
         @Override
         public int getCount() {
-            // Show 3 total pages.
-            return 3;
+            return 6;
         }
     }
 }
